@@ -39,10 +39,12 @@ namespace LanguageConsult.Verbs
         public string Meaning { get; internal protected set; }
         public string Notes { get; internal protected set; }
 
-        internal Guid Id { get; set; }
+        public Guid Id { get; internal protected set; }
+
+        public Guid InflectionId { get; internal protected set; }
 
         public Tense(string unsafeKanji, string unsafeHiragana, string unsafeRomaji, string unsafeMeaning, string unsafeNotes,
-            Guid guid, TENSE_TYPE setTenseType, bool polite = false)
+            Guid guid, TENSE_TYPE setTenseType, Guid inflectionId, bool polite = false)
         {
             
             if(guid == Guid.Empty)
@@ -53,63 +55,16 @@ namespace LanguageConsult.Verbs
             {
                 throw new ArgumentException(nameof(setTenseType));
             }
-            Kanji = GetSafeString(unsafeKanji, "Kanji", languageType: LANGUAGE_TYPE.KANJI);
-            Hiragana = GetSafeString(unsafeHiragana, "Hiragana", languageType: LANGUAGE_TYPE.HIRAGANA);
-            Romaji = GetSafeString(unsafeRomaji, "Romaji");
-            Meaning = GetSafeString(unsafeMeaning, "Meaning");
-            Notes = GetSafeString(unsafeNotes, "Notes", languageType: LANGUAGE_TYPE.ENGLISH, checkForEmpty: false);
+            Kanji = textValidator.GetSafeLanguageString(unsafeKanji, "Kanji", languageType: LANGUAGE_TYPE.KANJI);
+            Hiragana = textValidator.GetSafeLanguageString(unsafeHiragana, "Hiragana", languageType: LANGUAGE_TYPE.HIRAGANA);
+            Romaji = textValidator.GetSafeLanguageString(unsafeRomaji, "Romaji");
+            Meaning = textValidator.GetSafeLanguageString(unsafeMeaning, "Meaning");
+            Notes = textValidator.GetSafeLanguageString(unsafeNotes, "Notes", languageType: LANGUAGE_TYPE.ENGLISH, checkForEmpty: false);
             Id = guid;
             Polite = polite;
             tenseType = setTenseType;
+            this.InflectionId = inflectionId;
         }
 
-        private string GetSafeString(string unsafeValue, string namingType, LANGUAGE_TYPE languageType = LANGUAGE_TYPE.ENGLISH,   bool checkForEmpty = true)
-        {
-
-
-            if (checkForEmpty == true)
-            {
-                if (string.IsNullOrWhiteSpace(unsafeValue))
-                {
-                    throw new ArgumentNullException(nameof(namingType));
-                }
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(unsafeValue))
-                {
-                    // dont care about empty for this field so pass the check and carry on
-                    return String.Empty;
-                }
-
-            }
-
-
-            string safeValue = String.Empty;
-            bool passedTest = false;
-
-            switch (languageType)
-            {
-                case LANGUAGE_TYPE.HIRAGANA:
-                    passedTest = textValidator.ValidateHiragana(unsafeValue, out safeValue);
-                    break;
-                case LANGUAGE_TYPE.KANJI:
-                    passedTest = textValidator.ValidateKanji(unsafeValue, out safeValue);
-                    break;
-                default:
-                    passedTest = textValidator.ValidateText(unsafeValue, out safeValue);
-                    break;
-            }
-            
-
-
-            // security check
-            if (!passedTest)
-            {
-                throw new AuthenticationException(namingType);
-            }
-
-            return safeValue;
-        }
     }
 }

@@ -1,6 +1,8 @@
-﻿using System;
+﻿using LanguageConsult.Verbs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -74,6 +76,56 @@ namespace LanguageConsult.Security
             return passedSearch;
 
 
+        }
+
+
+        internal string GetSafeLanguageString(string unsafeValue, string namingType, LANGUAGE_TYPE languageType = LANGUAGE_TYPE.ENGLISH, bool checkForEmpty = true)
+        {
+            TextValidator textValidator = new TextValidator();
+
+            if (checkForEmpty == true)
+            {
+                if (string.IsNullOrWhiteSpace(unsafeValue))
+                {
+                    throw new ArgumentNullException(nameof(namingType));
+                }
+            }
+            else
+            {
+                if (string.IsNullOrWhiteSpace(unsafeValue))
+                {
+                    // dont care about empty for this field so pass the check and carry on
+                    return String.Empty;
+                }
+
+            }
+
+
+            string safeValue = String.Empty;
+            bool passedTest = false;
+
+            switch (languageType)
+            {
+                case LANGUAGE_TYPE.HIRAGANA:
+                    passedTest = textValidator.ValidateHiragana(unsafeValue, out safeValue);
+                    break;
+                case LANGUAGE_TYPE.KANJI:
+                    passedTest = textValidator.ValidateKanji(unsafeValue, out safeValue);
+                    break;
+                default:
+                    passedTest = textValidator.ValidateText(unsafeValue, out safeValue);
+                    break;
+            }
+
+
+
+            // security check
+            if (!passedTest)
+            {
+                throw new AuthenticationException(namingType);
+            }
+
+            return safeValue;
         }
 
 

@@ -11,12 +11,18 @@ namespace LanguageConsult.Verbs
     {
         public GodanVerb(string kanji, string hiragana, string romaji, string meaning, Guid verbGuid) : base(kanji, hiragana, romaji, meaning, verbGuid)
         {
-            this.verbType = "Godan Verb";// TODO LOCALISE HC MESSAGE
+            this.verbType = VERB_TYPE.GODAN;
         }
 
         public override void LoadInflections(List<Inflection> allInflections)
         {
             this.inflections = allInflections;
+        }
+
+
+        public override string ToString()
+        {
+            return $"Kanji: {Kanji} Hiragana: {Hiragana} Romaji: {Romaji} Meaning: {Meaning} VerbType: Godan";
         }
     }
 }
