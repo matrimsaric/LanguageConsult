@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LanguageConsult", "Language
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraryTester", "..\LibraryTester\LibraryTester.csproj", "{09B10F9E-1BC7-4BED-A532-547FC4C54723}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsultLibraryTests", "..\ConsultLibraryTests\ConsultLibraryTests.csproj", "{50BECC8C-D5BA-4170-AEC3-2E99E561757F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{09B10F9E-1BC7-4BED-A532-547FC4C54723}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09B10F9E-1BC7-4BED-A532-547FC4C54723}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09B10F9E-1BC7-4BED-A532-547FC4C54723}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50BECC8C-D5BA-4170-AEC3-2E99E561757F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50BECC8C-D5BA-4170-AEC3-2E99E561757F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50BECC8C-D5BA-4170-AEC3-2E99E561757F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50BECC8C-D5BA-4170-AEC3-2E99E561757F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
