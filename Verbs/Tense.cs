@@ -47,10 +47,6 @@ namespace LanguageConsult.Verbs
             Guid guid, TENSE_TYPE setTenseType, Guid inflectionId, bool polite = false)
         {
             
-            if(guid == Guid.Empty)
-            {
-                throw new ArgumentException(nameof(guid));
-            }
             if(setTenseType == TENSE_TYPE.UNKNOWN)
             {
                 throw new ArgumentException(nameof(setTenseType));

@@ -28,5 +28,11 @@ namespace LanguageConsult.DataAccess
         public abstract Task<Tense> LoadSpecificTense(Guid tenseId);
 
         public abstract Task<List<Tense>> LoadAllTensesForInflection(Guid inflectionId);
+
+        public abstract Task<bool> DeleteVerb(Verb verbToDelete);
+
+        public abstract Task<bool> DeleteInflection(Inflection inflectionToDelete);
+
+        public abstract Task<bool> DeleteTense(Tense tenseToDelete);
     }
 }

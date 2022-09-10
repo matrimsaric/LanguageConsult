@@ -9,7 +9,8 @@ namespace LanguageConsult.Verbs
 {
     public class GodanVerb : Verb
     {
-        public GodanVerb(string kanji, string hiragana, string romaji, string meaning, Guid verbGuid) : base(kanji, hiragana, romaji, meaning, verbGuid)
+        public GodanVerb(string unsafeKanji, string unsafeHiragana, string unsafeRomaji, string unsafeMeaning, Guid verbGuid, string unsafeKanjiCharacter, bool current)
+            : base(unsafeKanji, unsafeHiragana, unsafeRomaji, unsafeMeaning, verbGuid, unsafeKanjiCharacter, current)
         {
             this.verbType = VERB_TYPE.GODAN;
         }

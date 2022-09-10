@@ -21,6 +21,8 @@ namespace LanguageConsult.Verbs
         public string Hiragana { get; internal protected set; }
         public string Romaji { get; internal protected set; }
         public string Meaning { get; internal protected set; }
+        public string KanjiCharacter { get; internal protected set; }
+        public bool VerbCurrent { get; internal protected set; }
 
         public VERB_TYPE verbType = VERB_TYPE.UNKNOWN;
 
@@ -29,16 +31,17 @@ namespace LanguageConsult.Verbs
         public List<Inflection> inflections = new List<Inflection>();
 
         
-        public Verb(string unsafeKanji, string unsafeHiragana, string unsafeRomaji, string unsafeMeaning, Guid guid)
+        public Verb(string unsafeKanji, string unsafeHiragana, string unsafeRomaji, 
+            string unsafeMeaning, Guid guid, string unsafeKanjiCharacter, bool verbCurrent)
         {
             Kanji = textValidator.GetSafeLanguageString(unsafeKanji, "Kanji", languageType: LANGUAGE_TYPE.KANJI);
             Hiragana = textValidator.GetSafeLanguageString(unsafeHiragana, "Hiragana", languageType: LANGUAGE_TYPE.HIRAGANA);
             Romaji = textValidator.GetSafeLanguageString(unsafeRomaji, "Romaji", languageType: LANGUAGE_TYPE.ENGLISH);
             Meaning = textValidator.GetSafeLanguageString(unsafeMeaning, "Meaning", languageType: LANGUAGE_TYPE.ENGLISH);
+            VerbCurrent = verbCurrent;
+            KanjiCharacter = textValidator.GetSafeLanguageString(unsafeKanjiCharacter, "Kanji", languageType: LANGUAGE_TYPE.KANJI);
             if (guid != Guid.Empty)
                 Id = guid;
-            else
-                Id = Guid.NewGuid();
         }
 
         public abstract void LoadInflections(List<Inflection> allInflections);

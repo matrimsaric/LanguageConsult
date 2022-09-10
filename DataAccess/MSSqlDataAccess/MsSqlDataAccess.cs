@@ -1,10 +1,12 @@
 ﻿using LanguageConsult.Verbs;
 using LanguageConsult.Verbs.InflectionControl;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -14,6 +16,10 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
     public class MsSqlDataAccess : DataAccess
     {
         private SqlDataAccess sqlClient = new SqlDataAccess();
+
+        private Inflection emptyInflection = new StandardCasual("A", Guid.Empty, Guid.Empty);
+        private Tense emptyTense = new Tense( "書", "あ", "A", "A", "A", Guid.Empty, TENSE_TYPE.PAST_POSITIVE, Guid.Empty);
+        private Verb emptyVerb = new IchidanVerb("書", "あ", "A", "A", Guid.Empty, "書", false);
         public override Task<List<Inflection>> LoadAllInflectionsForVerb(Guid verbId)
         {
             string sql = $"SELECT * FROM Inflection WHERE VerbId =  '{verbId}'";
@@ -27,19 +33,32 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
                 DataRow initial = response.Rows[0];
                 Guid inflectionId = (Guid)initial["InflectionId"];
                 string name = (string)initial["InflectionName"];
+                string inflectionClass = (string)initial["InflectionClass"];
 
-                Inflection inflec = new Inflection(name, inflectionId, verbId);
-
-                list.Add(inflec);
+                Inflection inflection = GetInflectionFromClass(verbId, inflectionId, name, inflectionClass);
+                if(inflection.Id != Guid.Empty)
+                {
+                    list.Add(inflection);
+                }
             }
             if (list?.Count > 0)
             {
                 return Task.FromResult(list);
             }
-            Inflection emptyResponse = new Inflection(String.Empty, Guid.Empty, Guid.Empty);
             list = new List<Inflection>();
-            list.Add(emptyResponse);
+            list.Add(emptyInflection);
             return Task.FromResult(list);
+        }
+        private Inflection GetInflectionFromClass(Guid verbId, Guid inflectionId, string nme, string className)
+        {
+
+            switch (className)
+            {
+                case "StandardCasual":
+                    return new StandardCasual(nme, inflectionId, verbId);
+            }
+
+            return emptyInflection;
         }
 
         public override Task<List<Tense>> LoadAllTensesForInflection(Guid inflectionId)
@@ -69,7 +88,7 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
             {
                 return Task.FromResult(list);
             }
-            Tense emptyTense = new Tense(String.Empty, String.Empty, String.Empty, String.Empty, String.Empty, Guid.Empty, TENSE_TYPE.UNKNOWN, Guid.Empty);
+            
             list = new List<Tense>();
             list.Add(emptyTense);
             return Task.FromResult(list);
@@ -93,16 +112,17 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
                 DataRow initial = response.Rows[0];
                 Guid verbId = (Guid)initial["VerbId"];
                 string name = (string)initial["InflectionName"];
+                string inflectionClass = (string)initial["InflectionClass"];
 
-                Inflection inflec = new Inflection(name, inflectionId, verbId);
+                Inflection inflection = GetInflectionFromClass(verbId, inflectionId, name, inflectionClass);
 
-                return Task.FromResult(inflec);
+                return Task.FromResult(inflection);
 
 
             }
-            Inflection emptyResponse = new Inflection(String.Empty, Guid.Empty, Guid.Empty);
+            
 
-            return Task.FromResult(emptyResponse);
+            return Task.FromResult(emptyInflection);
         }
 
         public override Task<Tense> LoadSpecificTense(Guid tenseId)
@@ -132,7 +152,6 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
 
 
             }
-            Tense emptyTense = new Tense(String.Empty, String.Empty, String.Empty, String.Empty, String.Empty, Guid.Empty, TENSE_TYPE.UNKNOWN, Guid.Empty);
             return Task.FromResult(emptyTense);
         }
 
@@ -151,15 +170,17 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
                 string hiragana = (string)initial["Hiragana"];
                 string romaji = (string)initial["Romaji"];
                 string meaning = (string)initial["Meaning"];
+                string kanjiCharacter = (string)initial["KanjiCharacter"];
+                bool verbCurrent = (bool)initial["VerbCurrent"];
                 VERB_TYPE verbType = (VERB_TYPE)initial["VerbType"];
 
                 switch (verbType)
                 {
                     case VERB_TYPE.ICHIDAN:
-                        Verb ichidan = new IchidanVerb(kanji, hiragana, romaji, meaning, verbId);
+                        Verb ichidan = new IchidanVerb(kanji, hiragana, romaji, meaning, verbId, kanjiCharacter, verbCurrent);
                         return Task.FromResult(ichidan);
                     case VERB_TYPE.GODAN:
-                        Verb godan = new GodanVerb(kanji, hiragana, romaji, meaning, verbId);
+                        Verb godan = new GodanVerb(kanji, hiragana, romaji, meaning, verbId, kanjiCharacter, verbCurrent);
                         return Task.FromResult(godan);
                     case VERB_TYPE.EXCEPTION:
 
@@ -168,19 +189,21 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
 
                 
             }
-            Verb emptyResponse = new IchidanVerb(String.Empty, String.Empty, String.Empty, String.Empty, Guid.Empty);
-            return Task.FromResult(emptyResponse);
+            
+            return Task.FromResult(emptyVerb);
 
 
         }
 
         public override Task<bool> SaveInflection(Inflection inflectionToSave)
         {
+            string className = inflectionToSave.GetType().Name;
             var cmd = new SqlCommand("SaveInflection");
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Add("@Id", SqlDbType.UniqueIdentifier).Value = inflectionToSave.Id;
             cmd.Parameters.Add("@VerbId", SqlDbType.UniqueIdentifier).Value = inflectionToSave.VerbId;
             cmd.Parameters.Add("@Name", SqlDbType.NVarChar, 30).Value = inflectionToSave.Name;
+            cmd.Parameters.Add("@InflectionClass", SqlDbType.NVarChar, 30).Value = className;
            
 
             string response = String.Empty;
@@ -202,7 +225,7 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
             var cmd = new SqlCommand("SaveTense");
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Add("@Id", SqlDbType.UniqueIdentifier).Value = tenseToSave.Id;
-            cmd.Parameters.Add("@VerbId", SqlDbType.UniqueIdentifier).Value = tenseToSave.InflectionId;
+            cmd.Parameters.Add("@InflectionId", SqlDbType.UniqueIdentifier).Value = tenseToSave.InflectionId;
             cmd.Parameters.Add("@Kanji", SqlDbType.NVarChar, 30).Value = tenseToSave.Kanji;
             cmd.Parameters.Add("@Hiragana", SqlDbType.NVarChar, 30).Value = tenseToSave.Hiragana;
             cmd.Parameters.Add("@Romaji", SqlDbType.NVarChar, 30).Value = tenseToSave.Romaji;
@@ -235,6 +258,8 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
             cmd.Parameters.Add("@Romaji", SqlDbType.NVarChar, 30).Value = verbToSave.Romaji;
             cmd.Parameters.Add("@Meaning", SqlDbType.NVarChar, 50).Value = verbToSave.Meaning;
             cmd.Parameters.Add("@VerbType", SqlDbType.Int).Value = verbToSave.verbType;
+            cmd.Parameters.Add("@KanjiCharacter", SqlDbType.NVarChar, 10).Value = verbToSave.KanjiCharacter;
+            cmd.Parameters.Add("@VerbCurrent", SqlDbType.Bit).Value = verbToSave.VerbCurrent;
 
             string response = String.Empty;
 
@@ -251,6 +276,51 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
             
 
 
+        }
+
+        public override Task<bool> DeleteVerb(Verb verbToDelete)
+        {
+            string sql = $"DELETE Verb WHERE VerbId =  '{verbToDelete.Id}'";
+            sqlClient.ExecuteNonQuery(sql);
+
+            foreach (Inflection inf in verbToDelete.inflections)
+            {
+                sql = $"DELETE Inflection WHERE InflectionId =  '{inf.Id}'";
+
+                sqlClient.ExecuteNonQuery(sql);
+
+                sql = $"DELETE Tense WHERE InflectionId =  '{inf.Id}'";
+
+                sqlClient.ExecuteNonQuery(sql);
+            }
+            
+
+
+            return Task.FromResult(true);
+        }
+
+        public override Task<bool> DeleteInflection(Inflection inflectionToDelete)
+        {
+            string sql = $"DELETE Inflection WHERE InflectionId =  '{inflectionToDelete.Id}'";
+
+            sqlClient.ExecuteNonQuery(sql);
+
+            sql = $"DELETE Tense WHERE InflectionId =  '{inflectionToDelete.Id}'";
+
+            sqlClient.ExecuteNonQuery(sql);
+
+
+            return Task.FromResult(true);
+        }
+
+        public override Task<bool> DeleteTense(Tense tenseToDelete)
+        {
+            string sql = $"DELETE Tense WHERE TenseId =  '{tenseToDelete.Id}'";
+
+            sqlClient.ExecuteNonQuery(sql);
+
+
+            return Task.FromResult(true);
         }
     }
 }

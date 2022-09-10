@@ -10,7 +10,8 @@ namespace LanguageConsult.Verbs
     public class IchidanVerb : Verb
     {
 
-        public IchidanVerb(string kanji, string hiragana, string romaji, string meaning, Guid verbGuid) : base (kanji, hiragana, romaji, meaning, verbGuid)  
+        public IchidanVerb(string unsafeKanji, string unsafeHiragana, string unsafeRomaji, string unsafeMeaning, Guid verbGuid, string unsafeKanjiCharacter, bool current)
+            : base (unsafeKanji, unsafeHiragana, unsafeRomaji, unsafeMeaning, verbGuid, unsafeKanjiCharacter, current)  
         {
             this.verbType = VERB_TYPE.ICHIDAN;
         }

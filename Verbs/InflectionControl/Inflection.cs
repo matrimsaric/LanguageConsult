@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LanguageConsult.Verbs.InflectionControl
 {
-    public class Inflection 
+    public abstract class Inflection 
     {
         private TextValidator textValidator = new TextValidator();
         public Guid Id { get; internal protected set; }
