@@ -96,7 +96,12 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
 
         public override Task<DataTable> LoadAllVerbs()
         {
-            throw new NotImplementedException();
+            // TODO Add in search parameter options so can restrict data and possibly a delegate to report when loaded..
+            string sql = $"SELECT * FROM Verb ";
+
+            DataTable response = sqlClient.GetData(sql);
+
+            return Task.FromResult(response);
         }
 
         public override Task<Inflection> LoadSpecificInflection(Guid inflectionId)
