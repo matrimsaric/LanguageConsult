@@ -14,7 +14,7 @@ namespace LanguageConsult.Verbs
         GODAN = 2,
         EXCEPTION = 3
 }
-    public abstract class Verb : LoadingInflections
+    public abstract class Verb 
     {
         private TextValidator textValidator = new TextValidator();
         public string Kanji { get; internal protected set; }
@@ -44,7 +44,18 @@ namespace LanguageConsult.Verbs
                 Id = guid;
         }
 
-        public abstract void LoadInflections(List<Inflection> allInflections);
+        public void LoadInflections()
+        {
+            // Inflections do not differentiate on verb type and 
+            // are loaded from classes that contain the relevant info
+            // and not stored on the db mainly as that info would then get
+            // replicated across all the verbs wasting db space..
+            // This point will be the one point stop to generate the relevant
+            // inflections when added to the class structure within the Verbs>>InflectionControl folder
+            inflections.Add(new StandardCasual(Id));
+            inflections.Add(new StandardPolite(Id));
+
+        }
 
         
 

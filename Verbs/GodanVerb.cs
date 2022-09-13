@@ -15,10 +15,7 @@ namespace LanguageConsult.Verbs
             this.verbType = VERB_TYPE.GODAN;
         }
 
-        public override void LoadInflections(List<Inflection> allInflections)
-        {
-            this.inflections = allInflections;
-        }
+        
 
 
         public override string ToString()

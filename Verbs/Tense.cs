@@ -41,25 +41,34 @@ namespace LanguageConsult.Verbs
 
         public Guid Id { get; internal protected set; }
 
-        public Guid InflectionId { get; internal protected set; }
+        public Guid VerbId { get; internal protected set; }
+
+        public Tense(Guid verbId, TENSE_TYPE setTenseType )
+        {
+            VerbId = verbId;
+            tenseType = setTenseType;
+
+            Kanji = String.Empty;
+            Hiragana = String.Empty;
+            Romaji = String.Empty;
+            Meaning = String.Empty;
+            Notes = String.Empty;
+        }
 
         public Tense(string unsafeKanji, string unsafeHiragana, string unsafeRomaji, string unsafeMeaning, string unsafeNotes,
-            Guid guid, TENSE_TYPE setTenseType, Guid inflectionId, bool polite = false)
+            Guid guid, TENSE_TYPE newTense, Guid verbId)
         {
             
-            if(setTenseType == TENSE_TYPE.UNKNOWN)
-            {
-                throw new ArgumentException(nameof(setTenseType));
-            }
             Kanji = textValidator.GetSafeLanguageString(unsafeKanji, "Kanji", languageType: LANGUAGE_TYPE.KANJI);
             Hiragana = textValidator.GetSafeLanguageString(unsafeHiragana, "Hiragana", languageType: LANGUAGE_TYPE.HIRAGANA);
             Romaji = textValidator.GetSafeLanguageString(unsafeRomaji, "Romaji");
             Meaning = textValidator.GetSafeLanguageString(unsafeMeaning, "Meaning");
             Notes = textValidator.GetSafeLanguageString(unsafeNotes, "Notes", languageType: LANGUAGE_TYPE.ENGLISH, checkForEmpty: false);
             Id = guid;
-            Polite = polite;
-            tenseType = setTenseType;
-            this.InflectionId = inflectionId;
+
+            tenseType = newTense;
+
+            this.VerbId = verbId;
         }
 
     }

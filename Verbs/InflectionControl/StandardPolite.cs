@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace LanguageConsult.Verbs.InflectionControl
 {
-    public class StandardCasual : Inflection
+    public class StandardPolite : Inflection
     {
 
-        public StandardCasual(Guid verbId) : base(verbId)
+        public StandardPolite(Guid verbId) : base(verbId)
         {
-            base.Name = "Standard Casual";
+            base.Name = "Standard Polite";
 
             base.Tenses.Add(new Tense(verbId, TENSE_TYPE.CURRENT_FUTURE_POSITIVE));
             base.Tenses.Add(new Tense(verbId, TENSE_TYPE.CURRENT_FUTURE_NEGATIVE));
