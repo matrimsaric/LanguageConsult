@@ -71,5 +71,20 @@ namespace LanguageConsult.Verbs
             this.VerbId = verbId;
         }
 
+        public bool IsValid()
+        {
+            if(!string.IsNullOrEmpty(Kanji) && !string.IsNullOrEmpty(Hiragana) && !string.IsNullOrEmpty(Romaji)
+                && !string.IsNullOrEmpty(Meaning))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public override string ToString()
+        {
+            return tenseType.ToString() + Meaning;
+        }
+
     }
 }

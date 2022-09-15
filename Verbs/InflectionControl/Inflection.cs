@@ -20,11 +20,26 @@ namespace LanguageConsult.Verbs.InflectionControl
             VerbId = verbId;
 
 
+
+
         }
 
         internal void AddTenses(List<Tense> allTenses)
         {
             Tenses = allTenses;
+        }
+
+        public bool IsValid()
+        {
+            foreach(Tense tense in Tenses)
+            {
+                if(tense.IsValid() == false)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
 

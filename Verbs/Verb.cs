@@ -42,6 +42,8 @@ namespace LanguageConsult.Verbs
             KanjiCharacter = textValidator.GetSafeLanguageString(unsafeKanjiCharacter, "Kanji", languageType: LANGUAGE_TYPE.KANJI);
             if (guid != Guid.Empty)
                 Id = guid;
+
+            LoadInflections();
         }
 
         public void LoadInflections()
