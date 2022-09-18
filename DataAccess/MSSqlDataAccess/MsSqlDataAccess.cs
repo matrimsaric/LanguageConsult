@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
         private SqlDataAccess sqlClient = new SqlDataAccess();
 
         private Inflection emptyInflection = new StandardCasual(Guid.Empty);
-        private Tense emptyTense = new Tense( "書", "あ", "A", "A", "A", Guid.Empty, TENSE_TYPE.PAST_POSITIVE,Guid.Empty);
+        private Tense emptyTense = new Tense( "書", "あ", "A", "A", "A", Guid.Empty, TENSE_TYPE.PAST_POSITIVE,Guid.Empty, "MADEUP");
         private Verb emptyVerb = new IchidanVerb("書", "あ", "A", "A", Guid.Empty, "書", false);
         
 
@@ -38,10 +39,10 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
                 string romaji = (string)tenseRow["Romaji"];
                 string meaning = (string)tenseRow["Meaning"];
                 string notes = (string)tenseRow["Notes"];
-                bool polite = (bool)tenseRow["Polite"];
                 TENSE_TYPE tenseType = (TENSE_TYPE)tenseRow["TenseType"];
+                string inflectionClass = (string)tenseRow["InflectionClass"];
 
-                Tense tense = new Tense(kanji, hiragana, romaji, meaning, notes, tenseId, TENSE_TYPE.PAST_POSITIVE, verbId);
+                Tense tense = new Tense(kanji, hiragana, romaji, meaning, notes, tenseId, tenseType, verbId,inflectionClass);
 
                 list.Add(tense);
             }
@@ -84,10 +85,11 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
                 string romaji = (string)initial["Romaji"];
                 string meaning = (string)initial["Meaning"];
                 string notes = (string)initial["Notes"];
+                string inflectionClass = (string)initial["InflectionClass"];
 
                 TENSE_TYPE tenseType = (TENSE_TYPE)initial["TenseType"];
 
-                Tense tense = new Tense(kanji, hiragana,romaji,meaning, notes, tenseId, TENSE_TYPE.PAST_POSITIVE, verbId);
+                Tense tense = new Tense(kanji, hiragana,romaji,meaning, notes, tenseId, tenseType, verbId, inflectionClass);
 
                 return Task.FromResult(tense);
 
@@ -114,22 +116,49 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
                 string meaning = (string)initial["Meaning"];
                 string kanjiCharacter = (string)initial["KanjiCharacter"];
                 bool verbCurrent = (bool)initial["VerbCurrent"];
+                
                 VERB_TYPE verbType = (VERB_TYPE)initial["VerbType"];
+                Verb createdVerb = null;
 
                 switch (verbType)
                 {
                     case VERB_TYPE.ICHIDAN:
-                        Verb ichidan = new IchidanVerb(kanji, hiragana, romaji, meaning, verbId, kanjiCharacter, verbCurrent);
-                        return Task.FromResult(ichidan);
+                        createdVerb = new IchidanVerb(kanji, hiragana, romaji, meaning, verbId, kanjiCharacter, verbCurrent);
+                        break;
                     case VERB_TYPE.GODAN:
-                        Verb godan = new GodanVerb(kanji, hiragana, romaji, meaning, verbId, kanjiCharacter, verbCurrent);
-                        return Task.FromResult(godan);
+                        createdVerb = new GodanVerb(kanji, hiragana, romaji, meaning, verbId, kanjiCharacter, verbCurrent);
+                        break;
                     case VERB_TYPE.EXCEPTION:
 
                         break;
                 }
 
-                
+                // load tenses for verb
+                Task<List<Tense>> tenseList = this.LoadAllTensesForInflection(verbId);
+                // loop inflections in verb - note if inflection class is removed this prevents dodgy data appearing
+                // as nothing for the tense to attach to
+                if(createdVerb != null && tenseList.Result != null)
+                {
+                    List<Tense> allTenses = tenseList.Result;
+                    foreach (Inflection inf in createdVerb.inflections)
+                    {
+                        // use relection to get the class name
+                        string inflectionClass = inf.GetType().Name.ToString();
+
+                        // search for this among tenses
+
+                        List<Tense> foundTenses = allTenses.Where(x => x.InflectionClass == inflectionClass).ToList();
+
+                        if(foundTenses != null)
+                        {
+                            inf.AddTenses(foundTenses);
+                        }
+                    }
+                }
+                return Task.FromResult(createdVerb);
+
+
+
             }
             
             return Task.FromResult(emptyVerb);
@@ -144,6 +173,7 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.Add("@Id", SqlDbType.UniqueIdentifier).Value = tenseToSave.Id;
             cmd.Parameters.Add("@VerbId", SqlDbType.UniqueIdentifier).Value = tenseToSave.VerbId;
+            cmd.Parameters.Add("@InflectionClass", SqlDbType.NVarChar, 30).Value = tenseToSave.InflectionClass;
             cmd.Parameters.Add("@Kanji", SqlDbType.NVarChar, 30).Value = tenseToSave.Kanji;
             cmd.Parameters.Add("@Hiragana", SqlDbType.NVarChar, 30).Value = tenseToSave.Hiragana;
             cmd.Parameters.Add("@Romaji", SqlDbType.NVarChar, 30).Value = tenseToSave.Romaji;

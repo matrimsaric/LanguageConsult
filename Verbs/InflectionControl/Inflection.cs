@@ -24,9 +24,20 @@ namespace LanguageConsult.Verbs.InflectionControl
 
         }
 
-        internal void AddTenses(List<Tense> allTenses)
+       internal void AddTenses(List<Tense> allTenses)
         {
-            Tenses = allTenses;
+            foreach(Tense tense in allTenses)
+            {
+                // find match in current
+                Tense found = Tenses.FirstOrDefault(x => x.tenseType == tense.tenseType);
+
+                if (found != null)
+                {
+                    Tenses.Remove(found);
+                }
+                Tenses.Add(tense);
+
+            }
         }
 
         public bool IsValid()

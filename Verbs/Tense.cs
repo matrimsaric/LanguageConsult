@@ -43,7 +43,9 @@ namespace LanguageConsult.Verbs
 
         public Guid VerbId { get; internal protected set; }
 
-        public Tense(Guid verbId, TENSE_TYPE setTenseType )
+        public string InflectionClass { get; protected set; }
+
+        public Tense(Guid verbId, TENSE_TYPE setTenseType, string inflectionClass )
         {
             VerbId = verbId;
             tenseType = setTenseType;
@@ -53,17 +55,19 @@ namespace LanguageConsult.Verbs
             Romaji = String.Empty;
             Meaning = String.Empty;
             Notes = String.Empty;
+            InflectionClass = inflectionClass;
         }
 
         public Tense(string unsafeKanji, string unsafeHiragana, string unsafeRomaji, string unsafeMeaning, string unsafeNotes,
-            Guid guid, TENSE_TYPE newTense, Guid verbId)
+            Guid guid, TENSE_TYPE newTense, Guid verbId, string unsafeInlectionClass)
         {
             
             Kanji = textValidator.GetSafeLanguageString(unsafeKanji, "Kanji", languageType: LANGUAGE_TYPE.KANJI);
             Hiragana = textValidator.GetSafeLanguageString(unsafeHiragana, "Hiragana", languageType: LANGUAGE_TYPE.HIRAGANA);
-            Romaji = textValidator.GetSafeLanguageString(unsafeRomaji, "Romaji");
+            Romaji = textValidator.GetSafeLanguageString(unsafeRomaji, "Romaji", checkForEmpty: false);
             Meaning = textValidator.GetSafeLanguageString(unsafeMeaning, "Meaning");
             Notes = textValidator.GetSafeLanguageString(unsafeNotes, "Notes", languageType: LANGUAGE_TYPE.ENGLISH, checkForEmpty: false);
+            InflectionClass = textValidator.GetSafeLanguageString(unsafeInlectionClass, "InflectionClass");
             Id = guid;
 
             tenseType = newTense;
@@ -71,10 +75,23 @@ namespace LanguageConsult.Verbs
             this.VerbId = verbId;
         }
 
+        public void UpdateValues(string unsafeKanji, string unsafeHiragana, string unsafeRomaji, string unsafeMeaning, string unsafeNotes)
+        {
+            Kanji = textValidator.GetSafeLanguageString(unsafeKanji, "Kanji", languageType: LANGUAGE_TYPE.KANJI);
+            Hiragana = textValidator.GetSafeLanguageString(unsafeHiragana, "Hiragana", languageType: LANGUAGE_TYPE.HIRAGANA);
+            Romaji = textValidator.GetSafeLanguageString(unsafeRomaji, "Romaji", checkForEmpty: false);
+            Meaning = textValidator.GetSafeLanguageString(unsafeMeaning, "Meaning");
+            Notes = textValidator.GetSafeLanguageString(unsafeNotes, "Notes", languageType: LANGUAGE_TYPE.ENGLISH, checkForEmpty: false);
+
+            if(Id == Guid.Empty)
+            {
+                Id = Guid.NewGuid();
+            }
+        }
+
         public bool IsValid()
         {
-            if(!string.IsNullOrEmpty(Kanji) && !string.IsNullOrEmpty(Hiragana) && !string.IsNullOrEmpty(Romaji)
-                && !string.IsNullOrEmpty(Meaning))
+            if(!string.IsNullOrEmpty(Kanji) && !string.IsNullOrEmpty(Hiragana) && !string.IsNullOrEmpty(Meaning))
             {
                 return true;
             }
