@@ -100,7 +100,7 @@ namespace LanguageConsult.Verbs
 
         public override string ToString()
         {
-            return tenseType.ToString() + Meaning;
+            return tenseType.ToString().PadRight(28) + Meaning;
         }
 
     }

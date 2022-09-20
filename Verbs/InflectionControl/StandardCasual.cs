@@ -14,10 +14,10 @@ namespace LanguageConsult.Verbs.InflectionControl
         {
             base.Name = "Standard Casual";
 
-            base.Tenses.Add(new Tense(verbId, TENSE_TYPE.CURRENT_FUTURE_POSITIVE, this.GetType().Name));
-            base.Tenses.Add(new Tense(verbId, TENSE_TYPE.CURRENT_FUTURE_NEGATIVE, this.GetType().Name));
-            base.Tenses.Add(new Tense(verbId, TENSE_TYPE.PAST_POSITIVE, this.GetType().Name));
-            base.Tenses.Add(new Tense(verbId, TENSE_TYPE.PAST_NEGATIVE, this.GetType().Name));
+            base.Tenses[0] = new Tense(verbId, TENSE_TYPE.CURRENT_FUTURE_POSITIVE, this.GetType().Name);
+            base.Tenses[1] = new Tense(verbId, TENSE_TYPE.CURRENT_FUTURE_NEGATIVE, this.GetType().Name);
+            base.Tenses[2] = new Tense(verbId, TENSE_TYPE.PAST_POSITIVE, this.GetType().Name);
+            base.Tenses[3] = new Tense(verbId, TENSE_TYPE.PAST_NEGATIVE, this.GetType().Name);
         }
     }
 }

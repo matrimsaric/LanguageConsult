@@ -12,11 +12,11 @@ namespace LanguageConsult.Verbs.InflectionControl
         public Guid VerbId { get; internal protected set; }
         public string Name { get; internal protected set; }
 
-        public List<Tense> Tenses { get; internal protected set; }
+        public Tense[] Tenses { get; internal protected set; }
 
         public Inflection(Guid verbId)
         {
-            Tenses = new List<Tense>();
+            Tenses = new Tense[4];
             VerbId = verbId;
 
 
@@ -29,13 +29,14 @@ namespace LanguageConsult.Verbs.InflectionControl
             foreach(Tense tense in allTenses)
             {
                 // find match in current
-                Tense found = Tenses.FirstOrDefault(x => x.tenseType == tense.tenseType);
-
-                if (found != null)
+                for(int i = 0; i < Tenses.Length; i++)
                 {
-                    Tenses.Remove(found);
+                    if (Tenses[i].tenseType == tense.tenseType)
+                    {
+                        Tenses[i] = tense;
+                    }
                 }
-                Tenses.Add(tense);
+              
 
             }
         }
