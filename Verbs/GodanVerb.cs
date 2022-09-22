@@ -1,6 +1,7 @@
 ﻿using LanguageConsult.Verbs.InflectionControl;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,6 +14,8 @@ namespace LanguageConsult.Verbs
             : base(unsafeKanji, unsafeHiragana, unsafeRomaji, unsafeMeaning, verbGuid, unsafeKanjiCharacter, current)
         {
             this.verbType = VERB_TYPE.GODAN;
+            base.verbColor = Color.Blue;
+            base.verbString = "Godan Verb";
         }
 
         

@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LanguageConsult.Security;
 using LanguageConsult.Verbs.InflectionControl;
+using LanguageConsult.Verbs.Support;
 
 namespace LanguageConsult.Verbs
 {
@@ -14,7 +17,7 @@ namespace LanguageConsult.Verbs
         GODAN = 2,
         EXCEPTION = 3
 }
-    public abstract class Verb 
+    public abstract class Verb : IDataTableAccess
     {
         private TextValidator textValidator = new TextValidator();
         public string Kanji { get; internal protected set; }
@@ -30,7 +33,14 @@ namespace LanguageConsult.Verbs
 
         public List<Inflection> inflections = new List<Inflection>();
 
+        public Color verbColor = Color.Black;
+
+        public string verbString = "Unknown";
+
         
+
+
+
         public Verb(string unsafeKanji, string unsafeHiragana, string unsafeRomaji, 
             string unsafeMeaning, Guid guid, string unsafeKanjiCharacter, bool verbCurrent)
         {
@@ -56,8 +66,15 @@ namespace LanguageConsult.Verbs
             // inflections when added to the class structure within the Verbs>>InflectionControl folder
             inflections.Add(new StandardCasual(Id));
             inflections.Add(new StandardPolite(Id));
+            inflections.Add(new PotentialPolite(Id));
+            inflections.Add(new PotentialCasual(Id));
+            inflections.Add(new Desire(Id));
 
         }
+
+        
+
+        
 
         
 
