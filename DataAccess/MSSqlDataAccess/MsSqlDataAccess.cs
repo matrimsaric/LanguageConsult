@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -59,14 +60,85 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
         public override Task<DataTable> LoadAllVerbs()
         {
             // TODO Add in search parameter options so can restrict data and possibly a delegate to report when loaded..
-            string sql = $"SELECT * FROM Verb ";
+            string sql = $"SELECT VerbId, Kanji, Hiragana, Meaning, CASE VerbType WHEN 1 THEN 'Ichidan' WHEN 2 THEN 'Godan' WHEN 3 THEN 'Exception' WHEN 4 THEN 'Suru' END AS 'Verb Type',VerbCurrent  FROM Verb ";
 
             DataTable response = sqlClient.GetData(sql);
 
             return Task.FromResult(response);
         }
 
-       
+        public override Task<DataTable> LoadFilteredVerbs(int verbType, int searchField, string searchValue)
+        {
+            string sql = $"SELECT * FROM Verb WHERE ";
+
+
+            // always set to something when filtering so build where off of this
+            switch (verbType)
+            {
+                case 1:
+                    sql = sql + " VerbType = 1 ";// Ichidan
+                    break;
+                case 2:
+                    sql = sql + " VerbType = 2 ";// Godan
+                    break;
+                case 3:
+                    sql = sql + " VerbType = 3 ";// Exception
+                    break;
+                case 4:
+                    sql = sql + " VerbType = 3 ";// Suru
+                    break;
+                default:
+                    sql = sql + " VerbType IS NOT NULL ";// basically everything
+                    break;
+            }
+
+            // may or not be a subordinate clause
+            if(searchField > -1 && !string.IsNullOrEmpty(searchValue))
+            {
+                string subClause = String.Empty;
+
+                switch (searchField)
+                {
+                    case 0:
+                        subClause = " AND Kanji LIKE @param1 ";
+                        break;
+                    case 1:
+                        subClause = " AND Hiragana LIKE @param1 ";
+                        break;
+                    case 2:
+                        subClause = " AND Romaji LIKE @param1 ";
+
+                        break;
+                    default:
+                        subClause = " AND Meaning LIKE @param1 ";
+                        break;
+                }
+                sql = sql + subClause;
+
+                // like search so add
+                string searchFind = $"%{searchValue}%";
+
+
+
+
+                SqlParameter param1 = new SqlParameter("@param1", searchFind);
+
+                DataTable response = sqlClient.GetData(sql, singleParm: param1);
+
+                return Task.FromResult(response);
+            }
+            else
+            {
+                DataTable response = sqlClient.GetData(sql);
+
+                return Task.FromResult(response);
+            }
+            return Task.FromResult(new DataTable());
+
+
+        }
+
+
 
         public override Task<Tense> LoadSpecificTense(Guid tenseId)
         {
@@ -154,7 +226,10 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
                             inf.AddTenses(foundTenses);
                         }
                     }
+                    createdVerb.CheckCurrent();// set current true/false 
                 }
+
+                
                 return Task.FromResult(createdVerb);
 
 

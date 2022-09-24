@@ -17,6 +17,8 @@ namespace LanguageConsult.DataAccess
 
         public abstract Task<DataTable> LoadAllVerbs();
 
+        public abstract Task<DataTable> LoadFilteredVerbs(int verbType, int searchField, string searchValue);
+
         public abstract Task<bool> SaveTense(Tense tenseToSave);
 
         public abstract Task<Tense> LoadSpecificTense(Guid tenseId);

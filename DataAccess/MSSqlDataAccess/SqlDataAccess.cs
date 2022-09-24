@@ -57,15 +57,19 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
             }
         }
 
-        internal DataTable GetData(string sql)
+        internal DataTable GetData(string sql, SqlParameter singleParm = null)
         {
             DataTable response = new DataTable();
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
 
                 SqlCommand oCmd = new SqlCommand(sql, conn);
+                if(singleParm != null)
+                {
+                    oCmd.Parameters.Add(singleParm);
+                }
                 conn.Open();
-                using (SqlDataAdapter sda = new SqlDataAdapter(sql, conn))
+                using (SqlDataAdapter sda = new SqlDataAdapter(oCmd))
                 {
                     sda.Fill(response);
                 }

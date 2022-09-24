@@ -56,6 +56,23 @@ namespace LanguageConsult.Verbs
             LoadInflections();
         }
 
+        public void CheckCurrent()
+        {
+            // loop tenses to see if all set. If all set current to true (or false as they could be cleared)
+            foreach(Inflection inf in inflections)
+            {
+                foreach(Tense ten in inf.Tenses)
+                {
+                    if(string.IsNullOrEmpty(ten.Kanji) || string.IsNullOrEmpty(ten.Hiragana) || string.IsNullOrEmpty(ten.Meaning))
+                    {
+                        VerbCurrent = false;
+                        return;// dont waste time looping, 1 not set invalidates all
+                    }
+                }
+            }
+            VerbCurrent = true;
+        }
+
         public void LoadInflections()
         {
             // Inflections do not differentiate on verb type and 
