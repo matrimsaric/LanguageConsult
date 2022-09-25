@@ -1,4 +1,5 @@
-﻿using LanguageConsult.Verbs;
+﻿using LanguageConsult.Security;
+using LanguageConsult.Verbs;
 using LanguageConsult.Verbs.InflectionControl;
 using Microsoft.VisualBasic;
 using System;
@@ -18,6 +19,7 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
     public class MsSqlDataAccess : DataAccess
     {
         private SqlDataAccess sqlClient = new SqlDataAccess();
+        private TextValidator textValidator = new TextValidator();
 
         private Inflection emptyInflection = new StandardCasual(Guid.Empty);
         private Tense emptyTense = new Tense( "書", "あ", "A", "A", "A", Guid.Empty, TENSE_TYPE.PAST_POSITIVE,Guid.Empty, "MADEUP");
@@ -67,9 +69,17 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
             return Task.FromResult(response);
         }
 
-        public override Task<DataTable> LoadFilteredVerbs(int verbType, int searchField, string searchValue)
+        public override Task<DataTable> LoadFilteredVerbs(int verbType, int searchField, string unsafeSearchValue)
         {
-            string sql = $"SELECT * FROM Verb WHERE ";
+
+            // get safe search value, user entry unvalidated - built when we split on kanji etc in initial if statement
+            // TODO need hack tests added to test ddl
+            string sSafeSearchValue = String.Empty;
+
+
+
+            string sql = $"SELECT VerbId, Kanji, Hiragana, Meaning, CASE VerbType WHEN 1 THEN 'Ichidan' WHEN 2 THEN 'Godan' WHEN 3 THEN 'Exception' WHEN 4 THEN 'Suru' END AS 'Verb Type',VerbCurrent FROM Verb WHERE ";
+
 
 
             // always set to something when filtering so build where off of this
@@ -93,7 +103,7 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
             }
 
             // may or not be a subordinate clause
-            if(searchField > -1 && !string.IsNullOrEmpty(searchValue))
+            if(searchField > -1 && !string.IsNullOrEmpty(sSafeSearchValue))
             {
                 string subClause = String.Empty;
 
@@ -101,22 +111,26 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
                 {
                     case 0:
                         subClause = " AND Kanji LIKE @param1 ";
+                        sSafeSearchValue = textValidator.GetSafeLanguageString(unsafeSearchValue, "Kanji", languageType: LANGUAGE_TYPE.KANJI);
                         break;
                     case 1:
                         subClause = " AND Hiragana LIKE @param1 ";
+                        sSafeSearchValue = textValidator.GetSafeLanguageString(unsafeSearchValue, "Hiragana", languageType: LANGUAGE_TYPE.HIRAGANA);
                         break;
                     case 2:
                         subClause = " AND Romaji LIKE @param1 ";
+                        sSafeSearchValue = textValidator.GetSafeLanguageString(unsafeSearchValue, "Romaji");
 
                         break;
                     default:
                         subClause = " AND Meaning LIKE @param1 ";
+                        sSafeSearchValue = textValidator.GetSafeLanguageString(unsafeSearchValue, "Meaning");
                         break;
                 }
                 sql = sql + subClause;
 
                 // like search so add
-                string searchFind = $"%{searchValue}%";
+                string searchFind = $"%{sSafeSearchValue}%";
 
 
 
