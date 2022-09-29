@@ -13,7 +13,9 @@ namespace LanguageConsult.Security
     {
         private Regex checkString = new Regex(@"^[a-zA-Z]+$");//^[a-zA-Z]+$  [\\s\\w\\.]*
         private Regex checkHiragana = new Regex(@"^[\u3040-\u309Fー]+$");
-         internal bool ValidateText(string unsafeText, out string safeText)
+        private Regex checkKanji = new Regex(@"[u4e00-\u9faf]|[\u3400-\u4dbf]|[\u3040-\u309f]|[\u3000-\u303f]|[\u30a0-\u30ff]");
+        private Regex checkOnlyKanji = new Regex(@"[\u4e00-\u9faf]|[\u3400-\u4dbf]");
+        internal bool ValidateText(string unsafeText, out string safeText)
         {
             bool passedSearch = false;
             safeText = String.Empty;
@@ -41,9 +43,33 @@ namespace LanguageConsult.Security
             safeKanji = String.Empty;
 
             // looking for incidence of any standard text
-            if (checkString.IsMatch(unsafeKanji))
+            MatchCollection matches = checkKanji.Matches(unsafeKanji);
+            if (matches.Count != unsafeKanji.Length)
             {
-                safeKanji = unsafeKanji.Replace(checkString.ToString(), String.Empty);
+                safeKanji = String.Empty;
+            }
+            else
+            {
+                // passed
+                safeKanji = unsafeKanji;// only time this it permitted
+                passedSearch = true;
+            }
+
+            return passedSearch;
+
+
+        }
+
+        internal bool ValidateOnlyKanji(string unsafeKanji, out string safeKanji)
+        {
+            bool passedSearch = false;
+            safeKanji = String.Empty;
+
+            // looking for incidence of any standard text
+            MatchCollection matches = checkKanji.Matches(unsafeKanji);
+            if (matches.Count != unsafeKanji.Length)
+            {
+                safeKanji = String.Empty;
             }
             else
             {
@@ -62,9 +88,10 @@ namespace LanguageConsult.Security
             bool passedSearch = false;
             safeHiragana = String.Empty;
 
-            if (!checkHiragana.IsMatch(unsafeHirgana))
+            MatchCollection matches = checkKanji.Matches(unsafeHirgana);
+            if (matches.Count != unsafeHirgana.Length)
             {
-                safeHiragana = unsafeHirgana.Replace(checkString.ToString(), String.Empty);
+                safeHiragana = String.Empty;
             }
             else
             {
@@ -111,6 +138,9 @@ namespace LanguageConsult.Security
                     break;
                 case LANGUAGE_TYPE.KANJI:
                     passedTest = textValidator.ValidateKanji(unsafeValue, out safeValue);
+                    break;
+                case LANGUAGE_TYPE.ONLY_KANJI:
+                    passedTest = textValidator.ValidateOnlyKanji(unsafeValue, out safeValue);
                     break;
                 default:
                     passedTest = textValidator.ValidateText(unsafeValue, out safeValue);

@@ -49,7 +49,7 @@ namespace LanguageConsult.Verbs
             Romaji = textValidator.GetSafeLanguageString(unsafeRomaji, "Romaji", languageType: LANGUAGE_TYPE.ENGLISH);
             Meaning = textValidator.GetSafeLanguageString(unsafeMeaning, "Meaning", languageType: LANGUAGE_TYPE.ENGLISH);
             VerbCurrent = verbCurrent;
-            KanjiCharacter = textValidator.GetSafeLanguageString(unsafeKanjiCharacter, "Kanji", languageType: LANGUAGE_TYPE.KANJI);
+            KanjiCharacter = textValidator.GetSafeLanguageString(unsafeKanjiCharacter, "Kanji", languageType: LANGUAGE_TYPE.ONLY_KANJI);
             if (guid != Guid.Empty)
                 Id = guid;
 

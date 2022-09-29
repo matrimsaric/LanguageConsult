@@ -25,7 +25,8 @@ namespace LanguageConsult.Verbs
     {
         ENGLISH = 0,
         HIRAGANA = 1,
-        KANJI = 2
+        KANJI = 2,
+        ONLY_KANJI = 3
     }
     public class Tense
     {

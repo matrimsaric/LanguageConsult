@@ -22,7 +22,7 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
         private TextValidator textValidator = new TextValidator();
 
         private Inflection emptyInflection = new StandardCasual(Guid.Empty);
-        private Tense emptyTense = new Tense( "書", "あ", "A", "A", "A", Guid.Empty, TENSE_TYPE.PAST_POSITIVE,Guid.Empty, "MADEUP");
+        private Tense emptyTense = new Tense( "書", "あ", "A", "A", "A", Guid.Empty, TENSE_TYPE.PAST_POSITIVE,Guid.Empty, "PotentialTest");
         private Verb emptyVerb = new IchidanVerb("書", "あ", "A", "A", Guid.Empty, "書", false);
         
 
@@ -103,7 +103,7 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
             }
 
             // may or not be a subordinate clause
-            if(searchField > -1 && !string.IsNullOrEmpty(sSafeSearchValue))
+            if(searchField > -1 && !string.IsNullOrEmpty(unsafeSearchValue))
             {
                 string subClause = String.Empty;
 
