@@ -61,7 +61,6 @@ namespace LanguageConsult.DataAccess.MSSqlDataAccess
 
         public override Task<DataTable> LoadAllVerbs()
         {
-            // TODO Add in search parameter options so can restrict data and possibly a delegate to report when loaded..
             string sql = $"SELECT VerbId, Kanji, Hiragana, Meaning, CASE VerbType WHEN 1 THEN 'Ichidan' WHEN 2 THEN 'Godan' WHEN 3 THEN 'Exception' WHEN 4 THEN 'Suru' END AS 'Verb Type',VerbCurrent  FROM Verb ";
 
             DataTable response = sqlClient.GetData(sql);
